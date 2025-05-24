@@ -1,0 +1,61 @@
+# .cursorrules
+
+goal: >
+  RocksDB Write Buffer 최적화 실험을 통해 write_buffer_size, max_write_buffer_number, min_write_buffer_number_to_merge 설정이 성능에 미치는 영향을 분석한다.
+  실험 설계부터 결과 해석까지 체계적으로 진행하여 15분 발표 자료를 완성하는 것이 목표이다.
+
+context:
+  domain: Database Performance Benchmarking - Write Buffer Optimization
+  technology: RocksDB, db_bench
+  focus: Write Buffer Configuration Impact Analysis
+  tools: db_bench, perf, iostat, htop
+  metrics: Throughput (ops/sec), P99 Latency, Memory Usage, Write Amplification, Compaction Frequency
+  presentation: 15분 학술 발표 (가설 → 실험 → 결과 → 해석)
+
+experiment_design:
+  hypothesis: 
+    - "Write buffer 크기가 클수록 성능이 향상될 것이다"
+    - "메모리 사용량과 성능 간 선형 관계가 있을 것이다"
+  
+  variables:
+    - write_buffer_size: [16MB, 64MB, 128MB, 256MB, 512MB]
+    - max_write_buffer_number: [2, 4, 6]
+    - min_write_buffer_number_to_merge: [1, 2, 3]
+  
+  benchmarks:
+    - fillrandom: 순차적 랜덤 쓰기 성능 측정
+    - readrandom: 랜덤 읽기 성능 측정  
+    - overwrite: 기존 데이터 덮어쓰기 성능 측정
+
+constraints:
+  - 실험은 최소 3회 반복하여 평균값 사용
+  - 각 실험 간 데이터베이스 초기화 필수
+  - 시스템 리소스 모니터링 병행 (CPU, Memory, I/O)
+  - 재현 가능하도록 모든 설정과 환경 기록
+  - 통계적 유의성을 위한 충분한 데이터 수집
+
+presentation_structure:
+  - 동기 및 배경 (2분): 실험 동기, 기존 이론, 연구 질문
+  - 가설 및 실험 설계 (3분): 가설 설정, 실험 방법론, 측정 지표
+  - 실험 결과 (5분): 데이터 시각화, 주요 발견사항, 예상외 결과
+  - 결과 분석 및 해석 (4분): 원인 분석, 이론과 실제 차이, 최적화 포인트
+  - 결론 및 향후 과제 (1분): 핵심 인사이트, 실무 적용 방안
+
+deliverables:
+  - 실험 스크립트 (bash/python)
+  - 결과 데이터 (CSV/JSON)
+  - 시각화 자료 (그래프, 차트)
+  - 발표 슬라이드 (15분 분량)
+  - 실험 보고서 (재현 가능한 상세 기록)
+
+success_criteria:
+  - 가설 검증/기각의 명확한 결론
+  - 성능 최적화 포인트 도출
+  - 실무 적용 가능한 가이드라인 제시
+  - 예상과 다른 결과에 대한 설득력 있는 해석
+  - 시간 내 완성도 높은 발표
+
+format:
+  - title: "RocksDB Write Buffer 최적화: 성능과 메모리 사용량의 트레이드오프 분석"
+  - description: write_buffer_size 등 메모리 관련 설정이 처리량, 지연시간, 메모리 효율성에 미치는 영향을 체계적으로 분석
+  - tags: [rocksdb, write-buffer, memory-optimization, performance-tuning, benchmarking]
