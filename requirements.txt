@@ -1,43 +1,15 @@
-# RocksDB Write Buffer 최적화 실험 의존성 패키지 (평가표 최적화 버전)
+# RocksDB Write Buffer 최적화 실험 의존성 패키지
 
-# 핵심 데이터 분석
+# 데이터 분석
 pandas>=1.5.0
 numpy>=1.21.0
 
-# 고급 시각화 (발표용)
+# 시각화
 matplotlib>=3.5.0
 seaborn>=0.11.0
-plotly>=5.10.0              # 인터랙티브 시각화 (선택적)
 
-# 통계 분석 (신뢰구간, ROI 분석)
-scipy>=1.9.0
-scikit-learn>=1.1.0         # 파레토 분석, 클러스터링
-
-# 시스템 모니터링
+# 시스템 모니터링 (선택적)
 psutil>=5.8.0
 
-# 데이터 검증 및 품질 관리
-pydantic>=1.10.0            # 데이터 유효성 검사
-pytest>=7.0.0               # 테스트 (선택적)
-
 # 추가 유틸리티
-pathlib>=1.0.1              # Python 3.4+ 기본 모듈이므로 제거 가능
-tqdm>=4.64.0                # 진행률 표시
-colorama>=0.4.5             # 터미널 색상 (크로스 플랫폼)
-
-# 발표 자료 생성
-Pillow>=9.0.0               # 이미지 처리
-markdown>=3.4.0             # 마크다운 처리 (선택적)
-
-# 성능 최적화 (선택적)
-numexpr>=2.8.0              # 빠른 수치 연산
-tables>=3.7.0               # HDF5 지원 (대용량 데이터)
-
-# 개발 및 디버깅 (선택적)
-ipython>=8.0.0              # 대화형 개발
-jupyter>=1.0.0              # 노트북 환경 (선택적)
-
-# 호환성 노트:
-# - Python 3.8+ 권장
-# - macOS에서 matplotlib 설치 시 추가 설정 필요할 수 있음
-# - Windows에서는 Microsoft Visual C++ 14.0 필요할 수 있음 
+pathlib2>=2.3.0 

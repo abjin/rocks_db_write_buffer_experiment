@@ -28,38 +28,21 @@ Questions and discussions are welcome on the [RocksDB Developers Public](https:/
 
 RocksDB is dual-licensed under both the GPLv2 (found in the COPYING file in the root directory) and Apache 2.0 License (found in the LICENSE.Apache file in the root directory).  You may select, at your option, one of the above-listed licenses.
 
----
-
-# 🚀 RocksDB Write Buffer 최적화 실험 (평가표 최적화 버전)
+# RocksDB Write Buffer 최적화 실험
 
 ## 📖 실험 개요
+RocksDB의 Write Buffer 관련 설정이 성능에 미치는 영향을 체계적으로 분석하는 실험입니다.
 
-RocksDB의 Write Buffer 관련 설정이 성능에 미치는 영향을 체계적으로 분석하는 **평가표 최적화 실험**입니다.
-**10-12분 발표**에 최적화되어 설계되었으며, 창의적 분석 접근법과 자동화된 결과 생성을 특징으로 합니다.
-
-### 🎯 핵심 목표
+### 🎯 실험 목표
 - `write_buffer_size`, `max_write_buffer_number`, `min_write_buffer_number_to_merge` 설정 최적화
-- **창의적 접근**: ROI 분석, 파레토 최적선, 실제 워크로드 패턴 분석
+- 메모리 사용량 대비 성능 효율성 분석
 - 실무 적용 가능한 설정 가이드라인 도출
-- **평가표 기준 완벽 대응**: 타당성, 독창성, 완성도 모든 영역 최적화
-
-### 🏆 차별화된 특징
-
-#### 🎭 독창적 분석 접근법
-1. **ROI(Return on Investment) 분석**: 메모리 투자 대비 성능 수익률 계산
-2. **파레토 최적선 분석**: 메모리-성능 트레이드오프의 효율적 경계 식별  
-3. **실제 워크로드 패턴**: cache_friendly, write_heavy, balanced 시나리오 분석
-
-#### 📊 발표 최적화 설계
-- **10-12분 발표 시간** 완벽 준수
-- **자동 발표 자료 생성**: 대시보드, 체크리스트, 보고서
-- **평가표 기준별 체계적 대응**
 
 ## 🛠️ 실험 환경 설정
 
 ### 1. RocksDB 빌드
 ```bash
-# RocksDB 클론 및 빌드 (이미 완료된 경우 스킵)
+# RocksDB 클론 및 빌드
 git clone https://github.com/facebook/rocksdb.git
 cd rocksdb
 make db_bench
@@ -75,7 +58,7 @@ python3 -m venv venv
 source venv/bin/activate  # Linux/Mac
 # 또는 venv\Scripts\activate  # Windows
 
-# 의존성 설치 (추가 패키지 포함)
+# 의존성 설치
 pip install -r requirements.txt
 ```
 
@@ -84,162 +67,144 @@ pip install -r requirements.txt
 chmod +x run_write_buffer_experiment.sh
 ```
 
-## 🚀 실험 실행 (평가표 최적화)
+## 🚀 실험 실행
 
-### ⚡ 빠른 실행 (발표용)
+### 전체 실험 실행
 ```bash
-# 평가표 최적화 실험 실행 (10-12분 발표용)
+# db_bench 경로 수정 (필요시)
+# run_write_buffer_experiment.sh 파일의 DB_BENCH_PATH 변수 수정
+
+# 실험 실행
 ./run_write_buffer_experiment.sh
 ```
 
-### 🔧 실험 설정 상세
+### 실험 설정 커스터마이징
+스크립트 내 다음 변수들을 수정하여 실험을 조정할 수 있습니다:
 
-#### 발표 시간 최적화 설정
 ```bash
-NUM_KEYS=100000           # 발표용 최적화 (기존 1M → 100K)
-NUM_ITERATIONS=3          # 통계적 신뢰성 확보
-VALUE_SIZE=1024          # 표준 값 크기
-```
+# 실험 설정
+NUM_KEYS=1000000           # 실험용 키 개수
+NUM_ITERATIONS=3           # 반복 실험 횟수
+VALUE_SIZE=1024           # 값 크기 (bytes)
 
-#### 창의적 워크로드 패턴
-```bash
-# 실제 사용 시나리오 기반 워크로드
-cache_friendly="readrandom:50,overwrite:30,fillrandom:20"
-write_heavy="fillrandom:60,overwrite:30,readrandom:10"  
-balanced="readrandom:40,fillrandom:30,overwrite:30"
-```
+# Write Buffer 크기 (bytes)
+WRITE_BUFFER_SIZES=("16777216" "67108864" "134217728" "268435456" "536870912")
 
-#### 핵심 실험 변수
-```bash
-# 발표 시간 고려 최적화
-WRITE_BUFFER_SIZES=("16MB" "64MB" "128MB" "256MB")  # 512MB 제외
+# 최대 버퍼 개수
 MAX_WRITE_BUFFER_NUMBERS=("2" "4" "6")
+
+# 병합할 최소 버퍼 개수
 MIN_WRITE_BUFFER_NUMBER_TO_MERGE=("1" "2" "3")
 ```
 
-## 📊 결과 분석 (자동화)
+## 📊 결과 분석
 
-### 🎨 자동 생성 시각화
-실험 완료 후 다음 발표용 자료가 자동 생성됩니다:
+### 자동 분석
+실험 완료 후 Python 분석 스크립트가 자동으로 실행됩니다:
 
-```
-write_buffer_experiment/analysis/
-├── 📊 presentation_main_dashboard.png      # 발표 메인 슬라이드
-├── 📈 buffer_size_detailed_analysis.png    # 상세 성능 분석
-├── 🔄 performance_memory_tradeoff.png      # 창의적 트레이드오프 분석
-├── ⚙️ parameter_optimization.png           # 파라미터 최적화
-├── 📋 presentation_report.md               # 발표용 완전 보고서
-├── ✅ presentation_checklist.md            # 평가표 대응 체크리스트
-├── 📊 latest_results.csv                   # 최신 실험 데이터
-└── 📈 summary_statistics.csv               # 요약 통계
+```bash
+# 수동으로 분석 실행하려면
+python3 analyze_results.py
 ```
 
-### 🧠 자동 인사이트 생성
-- **최고 성능 달성 설정** 자동 식별
-- **메모리 효율성 최적점** 계산
-- **성능 트렌드 분석** (상관관계 분석)
-- **ROI 최적화 포인트** 도출
+### 생성되는 결과물
+```
+write_buffer_experiment/
+├── results/           # 원시 실험 결과
+├── logs/             # 시스템 모니터링 로그
+└── analysis/         # 분석 결과
+    ├── experiment_results.csv
+    ├── summary_statistics.csv
+    ├── experiment_report.md
+    └── *.png         # 시각화 그래프들
+```
 
-## 🎤 10-12분 발표 가이드
+## 📈 분석 결과
 
-### 📋 발표 구조 (시간 배분)
-1. **도입** (2분): 문제 제기, 연구 목표
-   - "메모리를 늘리면 성능이 좋아질까?"
-   - 실무 환경에서의 딜레마
+### 1. 주요 시각화
+- **write_buffer_size_impact.png**: Buffer 크기 영향 분석
+- **latency_analysis.png**: 지연시간 분석
+- **memory_efficiency.png**: 메모리 효율성 분석
+- **optimal_combination.png**: 최적 조합 비교
 
-2. **실험 설계** (2분): 방법론, 타당성
-   - 통제된 벤치마크 실험
-   - 반복 측정 및 통계적 신뢰성
+### 2. 핵심 지표
+- **Throughput**: 초당 처리 작업 수 (ops/sec)
+- **P99 Latency**: 99% 구간 지연시간 (μs)
+- **Write Amplification**: 쓰기 증폭 계수
+- **Memory Efficiency**: MB당 처리량
 
-3. **결과 발표** (6분): 핵심 발견사항
-   - 메인 대시보드 활용
-   - 창의적 분석 결과 (ROI, 파레토)
-   - 예상과 다른 결과 강조
+## 🎯 예상 결과
 
-4. **결론** (2분): 실무 가이드라인
-   - 최적 설정 권장사항
-   - 연구의 의의 및 한계
+### 가설
+1. Write buffer 크기가 클수록 성능이 향상될 것
+2. 메모리 사용량과 성능 간 선형 관계 존재
 
-### 🏆 평가표 기준 대응
-
-#### ✅ 실험 설계의 타당성 (20점)
-- [x] **환경 검증**: 하드웨어 리소스 자동 확인
-- [x] **워밍업 과정**: 측정 신뢰성 향상
-- [x] **반복 실험**: 3회 반복으로 통계적 신뢰성
-- [x] **재현성**: Git 정보 기록, 환경 문서화
-
-#### ✅ 결과 분석 및 해석 (25점)
-- [x] **메인 대시보드**: 핵심 결과 종합 시각화
-- [x] **4가지 전문 분석**: 상세분석, 트레이드오프, 최적화
-- [x] **자동 인사이트**: 발표용 핵심 발견사항 생성
-- [x] **신뢰구간**: 95% 신뢰구간 포함 정확한 분석
-
-#### ✅ 독창성 및 추가 접근 방식 (10점)
-- [x] **ROI 분석**: 메모리 투자 대비 성능 수익률
-- [x] **파레토 최적선**: 효율적 경계 식별
-- [x] **실제 워크로드**: 3가지 사용 시나리오 분석
-- [x] **창의적 시각화**: 3D 스타일, 버블 차트 등
-
-#### ✅ 발표 자료의 구성 및 완성도 (10점)
-- [x] **전문적 디자인**: 색상 팔레트, 레이아웃 최적화
-- [x] **자동 보고서**: 발표용 완전 문서 생성
-- [x] **체크리스트**: 평가표 기준별 준비사항
-- [x] **발표 가이드**: 시간 배분, 핵심 포인트
-
-## 📈 예상 핵심 결과
-
-### 🎯 주요 발견사항 (예상)
-1. **최적점 존재**: 128MB 근처에서 성능 최적점
-2. **메모리 효율성**: 64MB가 ROI 관점에서 최적
-3. **워크로드별 차이**: 패턴에 따른 최적 설정 상이
-4. **비선형 관계**: "큰 버퍼 = 좋은 성능" 가설 기각
-
-### 💼 실무 적용 가이드라인
-- **일반 OLTP**: 128MB Write Buffer 권장
-- **메모리 제약**: 64MB Write Buffer 권장  
-- **고성능 요구**: 256MB Write Buffer (메모리 여유시)
+### 실제 예상되는 발견
+- 특정 크기(~128MB)에서 성능 최적점 존재
+- 과도한 버퍼 크기에서 성능 저하 발생
+- 메모리 효율성과 절대 성능 간 트레이드오프
 
 ## 🔧 문제 해결
 
-### 일반적 문제
+### db_bench를 찾을 수 없는 경우
 ```bash
-# db_bench 경로 오류
-DB_BENCH_PATH="/absolute/path/to/rocksdb/db_bench"
+# RocksDB 빌드 확인
+cd rocksdb
+make clean && make db_bench
 
-# Python 패키지 오류  
+# 절대 경로로 설정
+DB_BENCH_PATH="/absolute/path/to/rocksdb/db_bench"
+```
+
+### Python 패키지 오류
+```bash
+# 업그레이드
 pip install --upgrade pip
 pip install -r requirements.txt --upgrade
-
-# 메모리 부족 시 설정 조정
-NUM_KEYS=50000         # 키 개수 추가 감소
 ```
 
-### 실험 재현성 확인
+### 메모리 부족 오류
 ```bash
-# 실험 환경 정보 확인
-cat write_buffer_experiment/logs/system_info.txt
-cat write_buffer_experiment/logs/experiment_metadata.txt
+# 실험 규모 조정
+NUM_KEYS=100000        # 키 개수 감소
+VALUE_SIZE=512         # 값 크기 감소
 ```
 
-## 📚 추가 리소스
+## 📝 15분 발표 구성
 
-### 발표 준비 자료
-- [실험 설계서](write_buffer_experiment_design.md): 상세 설계 문서
-- [평가표 체크리스트](write_buffer_experiment/analysis/presentation_checklist.md): 자동 생성 체크리스트
-- [발표 보고서](write_buffer_experiment/analysis/presentation_report.md): 완전한 발표용 문서
+### 발표 구조 (총 15분)
+1. **동기 및 배경** (2분)
+   - 실험 동기
+   - 기존 이론
+   - 연구 질문
 
-### RocksDB 공식 문서
+2. **가설 및 실험 설계** (3분)
+   - 가설 설정
+   - 실험 방법론
+   - 측정 지표
+
+3. **실험 결과** (5분)
+   - 데이터 시각화
+   - 주요 발견사항
+   - 예상외 결과
+
+4. **결과 분석 및 해석** (4분)
+   - 원인 분석
+   - 이론과 실제 차이
+   - 최적화 포인트
+
+5. **결론 및 향후 과제** (1분)
+   - 핵심 인사이트
+   - 실무 적용 방안
+
+## 📞 지원
+
+실험 중 문제가 발생하면:
+1. 로그 파일 확인: `write_buffer_experiment/logs/`
+2. 시스템 리소스 확인: `htop`, `free -h`
+3. db_bench 매뉴얼 참조: `./db_bench --help`
+
+## 📚 참고 자료
 - [RocksDB Wiki](https://github.com/facebook/rocksdb/wiki)
 - [RocksDB Tuning Guide](https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide)
-- [Write Buffer Manager](https://github.com/facebook/rocksdb/wiki/Write-Buffer-Manager)
-
----
-
-## 📞 지원 및 기여
-
-실험 관련 문의나 개선 제안은 다음을 통해 연락해주세요:
-- 실험 로그 확인: `write_buffer_experiment/logs/`
-- 시스템 리소스 확인: `htop`, `free -h`
-- RocksDB 매뉴얼: `./db_bench --help`
-
-**이 실험은 평가표 기준에 최적화된 10-12분 발표용으로 설계되었습니다.**
+- [db_bench Guide](https://github.com/facebook/rocksdb/wiki/Benchmarking-tools)
