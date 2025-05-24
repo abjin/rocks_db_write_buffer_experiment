@@ -8,6 +8,10 @@ RocksDB의 Write Buffer 관련 설정이 성능에 미치는 영향을 체계적
 - 메모리 사용량 대비 성능 효율성 분석
 - 실무 적용 가능한 설정 가이드라인 도출
 
+### 📋 상세 실험 설계
+자세한 실험 설계 및 방법론은 다음 문서를 참조하세요:
+**[📄 Write Buffer 최적화 실험 설계서](write_buffer_experiment_design.md)**
+
 ## 🛠️ 실험 환경 설정
 
 ### 1. RocksDB 빌드
@@ -175,6 +179,7 @@ VALUE_SIZE=512         # 값 크기 감소
 3. db_bench 매뉴얼 참조: `./db_bench --help`
 
 ## 📚 참고 자료
+- **[📄 실험 설계 문서](write_buffer_experiment_design.md)** - 상세한 실험 방법론 및 가설
 - [RocksDB Wiki](https://github.com/facebook/rocksdb/wiki)
 - [RocksDB Tuning Guide](https://github.com/facebook/rocksdb/wiki/RocksDB-Tuning-Guide)
 - [db_bench Guide](https://github.com/facebook/rocksdb/wiki/Benchmarking-tools)
