@@ -16,6 +16,28 @@ min_write_buffer_number_to_merges=(1, 2, 4, 6, 8)
 
 ## 2. 주요 성능 지표 분석
 
+### 2.0 실험 결과 시각화
+
+![시나리오 3 분석 그래프](scenario3_analysis_graphs.png)
+
+**그래프 설명:**
+위 종합 분석 그래프는 Min Write Buffer Number To Merge 설정에 따른 8가지 핵심 지표를 시각화합니다:
+
+1. **Write Throughput (좌상)**: merge=1에서 최고 성능, merge=6에서 최악 성능 (-19%)
+2. **Processing Time (우상)**: merge 값이 클수록 처리 시간 증가
+3. **Write Latency Distribution (좌중)**: P50, P99, P99.9 지연시간 분포 (P99.9는 10으로 나누어 표시)
+4. **Write Amplification (우중)**: merge=6에서 가장 효율적 (0.28x), merge=1에서 가장 비효율적 (1.55x)
+5. **I/O Operations Breakdown (좌하중)**: Compact Read/Write, Flush Write 패턴 분석
+6. **Write Stall Time (우하중)**: merge=6,8에서만 Stall 발생, 색상으로 위험도 표시
+7. **Performance vs I/O Efficiency Trade-off (좌하)**: 성능과 I/O 효율성의 상충 관계 시각화
+8. **Scenario Comparison (우하)**: 3개 시나리오 간 성능 영향도 비교
+
+**핵심 인사이트:**
+- 📊 **명확한 트레이드오프**: 성능 ↔ I/O 효율성 간 상충 관계
+- 🎯 **최적 균형점**: merge=1 (성능 우선) 또는 merge=4 (I/O 효율성 고려)
+- ⚠️ **위험 구간**: merge=6 이상에서 Write Stall 발생
+- 🔄 **시나리오 특성**: Merge Number는 유일하게 성능에 부정적 영향
+
 ### 2.1 Write 처리량 (Operations per Second)
 
 | Min Merge Buffers | 처리량 (ops/sec) | 처리 시간 (초) | 처리량 대비 기준 | 병합 전략 |
@@ -31,6 +53,11 @@ min_write_buffer_number_to_merges=(1, 2, 4, 6, 8)
 - ❌ **가설 부분 확인**: merge 값이 클수록 성능 저하 경향
 - 📉 **성능 저하 패턴**: merge=6에서 최악 성능 (19% 저하)
 
+**그래프 분석 (상단 좌측 - Write Throughput):**
+- 막대 그래프에서 merge=1의 녹색 막대가 가장 높음을 확인
+- 각 막대 내부의 성능 저하 비율 표시로 명확한 패턴 파악
+- merge=6에서 가장 낮은 성능과 -19% 표시로 최악점 시각화
+
 ### 2.2 Write 지연시간 분석 (마이크로초)
 
 | Min Merge Buffers | P50 지연시간 | P99 지연시간 | P99.9 지연시간 |
@@ -45,6 +72,12 @@ min_write_buffer_number_to_merges=(1, 2, 4, 6, 8)
 - 🟢 **merge=1의 낮은 지연시간**: P50 69.21μs로 가장 낮음
 - 🔴 **merge=6의 높은 지연시간**: P50 91.54μs, P99 345.09μs로 최악
 - 📊 **일관된 패턴**: merge 값이 클수록 지연시간 증가
+
+**그래프 분석 (중단 좌측 - Write Latency Distribution):**
+- 3개 막대 그룹으로 P50, P99, P99.9 지연시간 비교
+- merge=1에서 모든 지연시간 지표가 상대적으로 낮음
+- P99.9는 스케일 차이로 인해 10으로 나누어 표시 (범례 참조)
+- merge=6에서 P99 지연시간이 가장 높은 피크 형성
 
 ## 3. 시스템 리소스 및 I/O 분석
 
