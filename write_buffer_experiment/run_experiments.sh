@@ -20,11 +20,11 @@ DB_PATH="$SCRIPT_DIR/rocksdb_test"
 # 결과 디렉토리 생성
 mkdir -p "$RESULTS_DIR"
 
-# 실험 공통 설정 (더 큰 데이터셋으로 메모리 압박 증가)
-NUM_KEYS=2000000         # 200만 키-값 쌍 (4배 증가)
-VALUE_SIZE=2048          # 2KB 값 크기 (2배 증가) -> 총 약 4GB 데이터
+# 실험 공통 설정 (시간 단축을 위한 최적화된 설정)
+NUM_KEYS=1000000         # 100만 키-값 쌍 (의미있는 차이 유지하면서 시간 단축)
+VALUE_SIZE=2048          # 2KB 값 크기 -> 총 약 2GB 데이터
 NUM_THREADS=4            # CPU 코어 수에 맞춤
-CACHE_SIZE=536870912     # 512MB 블록 캐시 (메모리 압박 증가)
+CACHE_SIZE=268435456     # 256MB 블록 캐시 (메모리 압박 유지)
 
 # 로그 함수
 log() {
@@ -52,8 +52,8 @@ cleanup_db() {
     log "데이터베이스 정리 중..."
     rm -rf "$DB_PATH"
     sync
-    sleep 3  # 더 긴 대기 시간
-    # 메모리 캐시 정리
+    sleep 1  # 대기 시간 단축
+    # 메모리 캐시 정리 (선택적)
     echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null 2>&1 || true
 }
 
@@ -104,28 +104,22 @@ run_experiment() {
         $additional_params \
         2>&1 | tee "$output_file"
 
-    # 실험 간 안정화 대기 (2분)
-    log "시스템 안정화를 위해 2분 대기 중..."
-    sleep 120
-    
-    # Write 완료 후 Read 성능 측정
+    # Write 완료 후 즉시 Read 성능 측정 (대기시간 단축)
     echo "=== READ PERFORMANCE TEST ===" >> "$output_file"
     log "Read 성능 측정 시작: $test_name"
-
-    
     
     "$DB_BENCH" \
         --benchmarks=readrandom \
         --db="$DB_PATH" \
         --num=$NUM_KEYS \
-        --reads=$((NUM_KEYS / 2)) \
+        --reads=$((NUM_KEYS / 4)) \
         --threads=$NUM_THREADS \
         --cache_size=$CACHE_SIZE \
         --bloom_bits=10 \
         --compression_type=snappy \
         --statistics \
         --histogram \
-        --report_interval_seconds=5 \
+        --report_interval_seconds=10 \
         --use_existing_db=true \
         2>&1 | tee -a "$output_file"
     
@@ -137,9 +131,9 @@ run_experiment() {
     log "실험 완료: $test_name (소요시간: ${duration}초)"
     echo "----------------------------------------"
     
-    # 실험 간 안정화 대기 (2분)
-    log "시스템 안정화를 위해 2분 대기 중..."
-    sleep 120
+    # 실험 간 안정화 대기 (30초로 단축)
+    log "시스템 안정화를 위해 30초 대기 중..."
+    sleep 30
 }
 
 # =============================================================================
