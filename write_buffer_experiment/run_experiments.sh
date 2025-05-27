@@ -20,11 +20,11 @@ DB_PATH="$SCRIPT_DIR/rocksdb_test"
 # 결과 디렉토리 생성
 mkdir -p "$RESULTS_DIR"
 
-# 실험 공통 설정 (시간 단축을 위한 최적화된 설정)
-NUM_KEYS=1000000         # 100만 키-값 쌍 (의미있는 차이 유지하면서 시간 단축)
-VALUE_SIZE=2048          # 2KB 값 크기 -> 총 약 2GB 데이터
+# 실험 공통 설정 (빠른 실행을 위한 최적화)
+NUM_KEYS=300000          # 30만 키-값 쌍 (3배 감소로 시간 대폭 단축)
+VALUE_SIZE=1024          # 1KB 값 크기 -> 총 약 300MB 데이터
 NUM_THREADS=4            # CPU 코어 수에 맞춤
-CACHE_SIZE=268435456     # 256MB 블록 캐시 (메모리 압박 유지)
+CACHE_SIZE=134217728     # 128MB 블록 캐시
 
 # 로그 함수
 log() {
@@ -112,7 +112,7 @@ run_experiment() {
         --benchmarks=readrandom \
         --db="$DB_PATH" \
         --num=$NUM_KEYS \
-        --reads=$((NUM_KEYS / 4)) \
+        --reads=$((NUM_KEYS / 10)) \
         --threads=$NUM_THREADS \
         --cache_size=$CACHE_SIZE \
         --bloom_bits=10 \
@@ -131,9 +131,9 @@ run_experiment() {
     log "실험 완료: $test_name (소요시간: ${duration}초)"
     echo "----------------------------------------"
     
-    # 실험 간 안정화 대기 (30초로 단축)
-    log "시스템 안정화를 위해 30초 대기 중..."
-    sleep 30
+    # 실험 간 안정화 대기 (5초로 대폭 단축)
+    log "시스템 안정화를 위해 5초 대기 중..."
+    sleep 5
 }
 
 # =============================================================================
