@@ -1,5 +1,10 @@
 # RocksDB Write Buffer Size 최적화 실험 - 시나리오 1 결과 분석
 
+> Write Buffer Size가 작을 때(8MB)는 빈번한 Flush와 Compaction으로 인한 Write Stall이 발생하고, 너무 클 때(512MB)는 메모리 오버헤드에 따른 시스템 처리 부담 증가, 캐시 효율성 저하하여 32MB에서 최적의 성능 균형점이 형성되었다.
+
+> - 커지면: 성능 향상 → 최적점(32MB) 이후 정체 → 너무 크면(512MB) 메모리 오버헤드로 성능 저하
+> - 작아지면: Write Stall 발생, 빈번한 Flush → 성능 급격히 저하
+
 ## 1. 실험 개요
 
 ### 1.1 실험 목적
@@ -199,29 +204,3 @@ write_buffer_size=268435456  # 256MB
 2. **튜닝**: 워크로드에 따라 64MB까지 증가 고려
 3. **모니터링**: Write Stall 및 Write Amplification 지속 관찰
 4. **금기사항**: 16MB 미만 설정 절대 금지
-
-### 6.3 시각화 도구 활용
-
-본 분석에서 제공하는 시각화 도구들을 활용하여 지속적인 성능 모니터링이 가능합니다:
-
-**📊 제공된 시각화:**
-- `scenario1_analysis_charts.png`: 9개 지표 종합 대시보드
-- `scenario1_summary_table.png`: 핵심 지표 요약 테이블
-
-**🛠️ 시각화 도구:**
-```bash
-# 그래프 재생성
-python3 visualize_scenario1_en.py
-
-# 그래프 뷰어
-python3 view_graphs.py
-```
-
-**💡 활용 방안:**
-1. **성능 리포트**: 정기적인 성능 검토 시 활용
-2. **설정 변경 전후 비교**: 새로운 워크로드 적용 시 기준점 활용
-3. **팀 공유**: 시각적 자료로 설정 변경 근거 제시
-4. **문제 진단**: Write Stall이나 성능 저하 발생 시 원인 분석
-
-자세한 시각화 도구 사용법은 `README_VISUALIZATION.md`를 참조하세요.
-

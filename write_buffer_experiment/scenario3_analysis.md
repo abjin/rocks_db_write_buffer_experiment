@@ -1,5 +1,10 @@
 # RocksDB Min Write Buffer Number To Merge 최적화 실험 - 시나리오 3 결과 분석
 
+> min_write_buffer_number_to_merge가 1일 때 최고 성능(46,997 ops/sec)을 보이고 값이 증가할수록 성능은 최대 19% 저하되지만 Write Amplification은 1.55x에서 0.28x로 크게 개선되어 성능과 I/O 효율성 간 명확한 트레이드오프 관계를 확인했다.
+
+> min_write_buffer_number_to_merge 값이 클수록 더 많은 write buffer를 모아서 한 번에 병합하기 때문에 개별 compaction 작업은 커지고 빈도는 줄어들어 I/O 효율성은 향상되지만, 병합 대기 시간과 대용량 compaction으로 인한 지연으로 전체 성능은 저하된다.
+
+
 ## 1. 실험 개요
 
 ### 1.1 실험 목적
