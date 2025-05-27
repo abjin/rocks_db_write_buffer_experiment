@@ -1,0 +1,2 @@
+timestamp,cpu_usage,memory_usage_mb,io_read_kb,io_write_kb
+2025-05-27 07:29:06,15.9,661,192.49,16151.58
