@@ -112,3 +112,42 @@ min_write_buffer_number_to_merges=(1 2 4 6 8)  # 1, 2, 4, 6, 8
 - **작은 Write Buffer**: 빈번한 플러시 → 많은 SST 파일 → Read 성능 저하
 - **큰 Write Buffer**: 적은 플러시 → 적은 SST 파일 → Read 성능 향상
 - **메모리 경합**: Write Buffer 메모리 사용 ↑ → Block Cache 효율 ↓ → Read 성능 저하
+
+
+# 4. 실험 결과
+
+## 4.1 상세 분석 문서
+
+### 📊 시나리오별 분석 보고서
+
+#### [시나리오 1: Write Buffer Size 최적화 분석](./write_buffer_experiment/scenario1_analysis.md)
+- **실험 범위**: 8MB ~ 512MB (64배 차이)
+- **핵심 발견**: 32MB에서 최고 성능 (36% 향상)
+- **주요 지표**: Flush 분석, Write Stall, Compaction 부하
+- **권장사항**: 워크로드별 최적 설정 가이드
+
+#### [시나리오 2: Max Write Buffer Number 분석](./write_buffer_experiment/scenario2_analysis.md)
+- **실험 범위**: 1개 ~ 16개 버퍼
+- **핵심 발견**: 병렬성과 메모리 사용량의 트레이드오프
+- **주요 지표**: 버퍼 개수별 성능 변화
+- **권장사항**: 시스템 리소스 기반 최적화
+
+#### [시나리오 3: Min Write Buffer Number To Merge 분석](./write_buffer_experiment/scenario3_analysis.md)
+- **실험 범위**: 1 ~ 8 병합 임계값
+- **핵심 발견**: 병합 전략이 Compaction에 미치는 영향
+- **주요 지표**: 병합 지연과 I/O 효율성
+- **권장사항**: Compaction 최적화 전략
+
+## 4.2 실험 데이터 및 스크립트
+
+### 🔬 실험 자동화
+- **실행 스크립트**: [`run_experiments.sh`](./write_buffer_experiment/run_experiments.sh)
+- **실험 로그**: [`run.log`](./write_buffer_experiment/run.log)
+- **원시 데이터**: [`results/`](./write_buffer_experiment/results/) 폴더
+
+### 📈 주요 성과 요약
+- **최적 Write Buffer Size**: 32MB (OLTP 워크로드 기준)
+- **성능 향상**: 기본 설정 대비 최대 36% 처리량 증가
+- **Write Stall 해결**: 16MB 이상 설정으로 완전 해결
+- **메모리 효율성**: 64MB까지 선형적 성능 향상 확인
+
