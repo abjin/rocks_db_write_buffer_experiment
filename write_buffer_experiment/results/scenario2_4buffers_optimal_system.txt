@@ -1,0 +1,12 @@
+=== System Info for scenario2_4buffers_optimal ===
+Timestamp: Tue May 27 09:46:53 UTC 2025
+CPU Info:
+model name	: Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz
+Memory Info:
+               total        used        free      shared  buff/cache   available
+Mem:           7.7Gi       735Mi       6.5Gi       1.0Mi       583Mi       6.8Gi
+Swap:             0B          0B          0B
+Disk Info:
+Filesystem                   Size  Used Avail Use% Mounted on
+/dev/mapper/ubuntu--vg-root   48G  7.2G   39G  16% /
+

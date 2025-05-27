@@ -1,0 +1,45 @@
+RocksDB Write Buffer 최적화 실험 요약 (개선된 버전)
+실험 일시: Tue May 27 09:51:42 UTC 2025
+실험 환경: CPU 4코어, 메모리 8.59GB
+키-값 쌍 수: 300000
+값 크기: 1024B
+스레드 수: 4
+예상 총 데이터 크기: 0GB
+
+실험 시나리오별 요약:
+1. Write Buffer Size 극한 테스트: 8MB ~ 512MB (5개 실험)
+2. Max Write Buffer Number 극한 테스트: 1개 ~ 16개 (5개 실험)
+3. Min Write Buffer Number To Merge 극한 테스트: 1 ~ 8 (5개 실험)
+
+실험 파일 목록:
+-rw-rw-r-- 1 paperspace paperspace   511 May 27 09:51 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/experiment_summary.txt
+-rw-rw-r-- 1 paperspace paperspace 48705 May 27 09:44 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario1_256mb_large_result.txt
+-rw-rw-r-- 1 paperspace paperspace   498 May 27 09:44 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario1_256mb_large_system.txt
+-rw-rw-r-- 1 paperspace paperspace 48726 May 27 09:43 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario1_32mb_small_result.txt
+-rw-rw-r-- 1 paperspace paperspace   497 May 27 09:43 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario1_32mb_small_system.txt
+-rw-rw-r-- 1 paperspace paperspace 49088 May 27 09:45 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario1_512mb_extreme_large_result.txt
+-rw-rw-r-- 1 paperspace paperspace   506 May 27 09:45 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario1_512mb_extreme_large_system.txt
+-rw-rw-r-- 1 paperspace paperspace 48760 May 27 09:44 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario1_64mb_default_result.txt
+-rw-rw-r-- 1 paperspace paperspace   499 May 27 09:43 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario1_64mb_default_system.txt
+-rw-rw-r-- 1 paperspace paperspace 49459 May 27 09:43 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario1_8mb_extreme_small_result.txt
+-rw-rw-r-- 1 paperspace paperspace   504 May 27 09:42 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario1_8mb_extreme_small_system.txt
+-rw-rw-r-- 1 paperspace paperspace 48651 May 27 09:48 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario2_16buffers_extreme_result.txt
+-rw-rw-r-- 1 paperspace paperspace   504 May 27 09:48 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario2_16buffers_extreme_system.txt
+-rw-rw-r-- 1 paperspace paperspace 48659 May 27 09:46 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario2_1buffer_bottleneck_result.txt
+-rw-rw-r-- 1 paperspace paperspace   505 May 27 09:45 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario2_1buffer_bottleneck_system.txt
+-rw-rw-r-- 1 paperspace paperspace 48753 May 27 09:46 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario2_2buffers_low_result.txt
+-rw-rw-r-- 1 paperspace paperspace   499 May 27 09:46 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario2_2buffers_low_system.txt
+-rw-rw-r-- 1 paperspace paperspace 48661 May 27 09:47 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario2_4buffers_optimal_result.txt
+-rw-rw-r-- 1 paperspace paperspace   503 May 27 09:46 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario2_4buffers_optimal_system.txt
+-rw-rw-r-- 1 paperspace paperspace 48721 May 27 09:47 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario2_8buffers_high_result.txt
+-rw-rw-r-- 1 paperspace paperspace   500 May 27 09:47 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario2_8buffers_high_system.txt
+-rw-rw-r-- 1 paperspace paperspace 48711 May 27 09:49 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario3_merge1_immediate_result.txt
+-rw-rw-r-- 1 paperspace paperspace   503 May 27 09:48 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario3_merge1_immediate_system.txt
+-rw-rw-r-- 1 paperspace paperspace 48715 May 27 09:49 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario3_merge2_fast_result.txt
+-rw-rw-r-- 1 paperspace paperspace   498 May 27 09:49 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario3_merge2_fast_system.txt
+-rw-rw-r-- 1 paperspace paperspace 48694 May 27 09:50 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario3_merge4_medium_result.txt
+-rw-rw-r-- 1 paperspace paperspace   500 May 27 09:49 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario3_merge4_medium_system.txt
+-rw-rw-r-- 1 paperspace paperspace 49090 May 27 09:50 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario3_merge6_slow_result.txt
+-rw-rw-r-- 1 paperspace paperspace   498 May 27 09:50 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario3_merge6_slow_system.txt
+-rw-rw-r-- 1 paperspace paperspace 48701 May 27 09:51 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario3_merge8_delayed_result.txt
+-rw-rw-r-- 1 paperspace paperspace   501 May 27 09:51 /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/scenario3_merge8_delayed_system.txt

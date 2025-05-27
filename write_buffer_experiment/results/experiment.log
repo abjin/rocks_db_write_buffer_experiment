@@ -1,0 +1,147 @@
+[2025-05-27 09:42:36] RocksDB Write Buffer 최적화 실험 시작 (개선된 버전)
+[2025-05-27 09:42:36] 환경: CPU 4코어, 메모리 8.59GB
+[2025-05-27 09:42:36] 키-값 쌍 수: 300000, 값 크기: 1024B, 스레드 수: 4
+[2025-05-27 09:42:36] 예상 총 데이터 크기: 0GB
+[2025-05-27 09:42:36] === 시나리오 1: Write Buffer Size 극한 테스트 ===
+[2025-05-27 09:42:36] 실험 시작: scenario1_8mb_extreme_small
+[2025-05-27 09:42:36]   - write_buffer_size: 8MB
+[2025-05-27 09:42:36]   - max_write_buffer_number: 3
+[2025-05-27 09:42:36]   - min_write_buffer_number_to_merge: 1
+[2025-05-27 09:42:36]   - additional_params: 
+[2025-05-27 09:42:36] 데이터베이스 정리 중...
+[2025-05-27 09:43:10] Read 성능 측정 시작: scenario1_8mb_extreme_small
+[2025-05-27 09:43:12] 실험 완료: scenario1_8mb_extreme_small (소요시간: 35초)
+[2025-05-27 09:43:12] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:43:17] 실험 시작: scenario1_32mb_small
+[2025-05-27 09:43:17]   - write_buffer_size: 32MB
+[2025-05-27 09:43:17]   - max_write_buffer_number: 3
+[2025-05-27 09:43:17]   - min_write_buffer_number_to_merge: 1
+[2025-05-27 09:43:17]   - additional_params: 
+[2025-05-27 09:43:17] 데이터베이스 정리 중...
+[2025-05-27 09:43:42] Read 성능 측정 시작: scenario1_32mb_small
+[2025-05-27 09:43:43] 실험 완료: scenario1_32mb_small (소요시간: 25초)
+[2025-05-27 09:43:43] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:43:48] 실험 시작: scenario1_64mb_default
+[2025-05-27 09:43:48]   - write_buffer_size: 64MB
+[2025-05-27 09:43:48]   - max_write_buffer_number: 3
+[2025-05-27 09:43:48]   - min_write_buffer_number_to_merge: 1
+[2025-05-27 09:43:48]   - additional_params: 
+[2025-05-27 09:43:48] 데이터베이스 정리 중...
+[2025-05-27 09:44:16] Read 성능 측정 시작: scenario1_64mb_default
+[2025-05-27 09:44:18] 실험 완료: scenario1_64mb_default (소요시간: 29초)
+[2025-05-27 09:44:18] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:44:23] 실험 시작: scenario1_256mb_large
+[2025-05-27 09:44:23]   - write_buffer_size: 256MB
+[2025-05-27 09:44:23]   - max_write_buffer_number: 3
+[2025-05-27 09:44:23]   - min_write_buffer_number_to_merge: 1
+[2025-05-27 09:44:23]   - additional_params: 
+[2025-05-27 09:44:23] 데이터베이스 정리 중...
+[2025-05-27 09:44:53] Read 성능 측정 시작: scenario1_256mb_large
+[2025-05-27 09:44:57] 실험 완료: scenario1_256mb_large (소요시간: 33초)
+[2025-05-27 09:44:57] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:45:02] 실험 시작: scenario1_512mb_extreme_large
+[2025-05-27 09:45:02]   - write_buffer_size: 512MB
+[2025-05-27 09:45:02]   - max_write_buffer_number: 3
+[2025-05-27 09:45:02]   - min_write_buffer_number_to_merge: 1
+[2025-05-27 09:45:02]   - additional_params: 
+[2025-05-27 09:45:02] 데이터베이스 정리 중...
+[2025-05-27 09:45:36] Read 성능 측정 시작: scenario1_512mb_extreme_large
+[2025-05-27 09:45:39] 실험 완료: scenario1_512mb_extreme_large (소요시간: 36초)
+[2025-05-27 09:45:39] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:45:44] === 시나리오 2: Max Write Buffer Number 극한 테스트 ===
+[2025-05-27 09:45:44] 실험 시작: scenario2_1buffer_bottleneck
+[2025-05-27 09:45:44]   - write_buffer_size: 64MB
+[2025-05-27 09:45:44]   - max_write_buffer_number: 1
+[2025-05-27 09:45:44]   - min_write_buffer_number_to_merge: 1
+[2025-05-27 09:45:44]   - additional_params: 
+[2025-05-27 09:45:44] 데이터베이스 정리 중...
+[2025-05-27 09:46:11] Read 성능 측정 시작: scenario2_1buffer_bottleneck
+[2025-05-27 09:46:13] 실험 완료: scenario2_1buffer_bottleneck (소요시간: 28초)
+[2025-05-27 09:46:13] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:46:18] 실험 시작: scenario2_2buffers_low
+[2025-05-27 09:46:18]   - write_buffer_size: 64MB
+[2025-05-27 09:46:18]   - max_write_buffer_number: 2
+[2025-05-27 09:46:18]   - min_write_buffer_number_to_merge: 1
+[2025-05-27 09:46:18]   - additional_params: 
+[2025-05-27 09:46:18] 데이터베이스 정리 중...
+[2025-05-27 09:46:47] Read 성능 측정 시작: scenario2_2buffers_low
+[2025-05-27 09:46:48] 실험 완료: scenario2_2buffers_low (소요시간: 29초)
+[2025-05-27 09:46:48] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:46:53] 실험 시작: scenario2_4buffers_optimal
+[2025-05-27 09:46:53]   - write_buffer_size: 64MB
+[2025-05-27 09:46:53]   - max_write_buffer_number: 4
+[2025-05-27 09:46:53]   - min_write_buffer_number_to_merge: 1
+[2025-05-27 09:46:53]   - additional_params: 
+[2025-05-27 09:46:53] 데이터베이스 정리 중...
+[2025-05-27 09:47:19] Read 성능 측정 시작: scenario2_4buffers_optimal
+[2025-05-27 09:47:21] 실험 완료: scenario2_4buffers_optimal (소요시간: 27초)
+[2025-05-27 09:47:21] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:47:26] 실험 시작: scenario2_8buffers_high
+[2025-05-27 09:47:26]   - write_buffer_size: 64MB
+[2025-05-27 09:47:26]   - max_write_buffer_number: 8
+[2025-05-27 09:47:26]   - min_write_buffer_number_to_merge: 1
+[2025-05-27 09:47:26]   - additional_params: 
+[2025-05-27 09:47:26] 데이터베이스 정리 중...
+[2025-05-27 09:47:54] Read 성능 측정 시작: scenario2_8buffers_high
+[2025-05-27 09:47:56] 실험 완료: scenario2_8buffers_high (소요시간: 29초)
+[2025-05-27 09:47:56] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:48:01] 실험 시작: scenario2_16buffers_extreme
+[2025-05-27 09:48:01]   - write_buffer_size: 64MB
+[2025-05-27 09:48:01]   - max_write_buffer_number: 16
+[2025-05-27 09:48:01]   - min_write_buffer_number_to_merge: 1
+[2025-05-27 09:48:01]   - additional_params: 
+[2025-05-27 09:48:01] 데이터베이스 정리 중...
+[2025-05-27 09:48:28] Read 성능 측정 시작: scenario2_16buffers_extreme
+[2025-05-27 09:48:29] 실험 완료: scenario2_16buffers_extreme (소요시간: 27초)
+[2025-05-27 09:48:29] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:48:34] === 시나리오 3: Min Write Buffer Number To Merge 극한 테스트 ===
+[2025-05-27 09:48:34] 실험 시작: scenario3_merge1_immediate
+[2025-05-27 09:48:34]   - write_buffer_size: 64MB
+[2025-05-27 09:48:34]   - max_write_buffer_number: 8
+[2025-05-27 09:48:34]   - min_write_buffer_number_to_merge: 1
+[2025-05-27 09:48:34]   - additional_params: 
+[2025-05-27 09:48:34] 데이터베이스 정리 중...
+[2025-05-27 09:49:01] Read 성능 측정 시작: scenario3_merge1_immediate
+[2025-05-27 09:49:03] 실험 완료: scenario3_merge1_immediate (소요시간: 28초)
+[2025-05-27 09:49:03] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:49:08] 실험 시작: scenario3_merge2_fast
+[2025-05-27 09:49:08]   - write_buffer_size: 64MB
+[2025-05-27 09:49:08]   - max_write_buffer_number: 8
+[2025-05-27 09:49:08]   - min_write_buffer_number_to_merge: 2
+[2025-05-27 09:49:08]   - additional_params: 
+[2025-05-27 09:49:08] 데이터베이스 정리 중...
+[2025-05-27 09:49:37] Read 성능 측정 시작: scenario3_merge2_fast
+[2025-05-27 09:49:39] 실험 완료: scenario3_merge2_fast (소요시간: 30초)
+[2025-05-27 09:49:39] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:49:44] 실험 시작: scenario3_merge4_medium
+[2025-05-27 09:49:44]   - write_buffer_size: 64MB
+[2025-05-27 09:49:44]   - max_write_buffer_number: 8
+[2025-05-27 09:49:44]   - min_write_buffer_number_to_merge: 4
+[2025-05-27 09:49:44]   - additional_params: 
+[2025-05-27 09:49:44] 데이터베이스 정리 중...
+[2025-05-27 09:50:13] Read 성능 측정 시작: scenario3_merge4_medium
+[2025-05-27 09:50:16] 실험 완료: scenario3_merge4_medium (소요시간: 31초)
+[2025-05-27 09:50:16] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:50:21] 실험 시작: scenario3_merge6_slow
+[2025-05-27 09:50:21]   - write_buffer_size: 64MB
+[2025-05-27 09:50:21]   - max_write_buffer_number: 8
+[2025-05-27 09:50:21]   - min_write_buffer_number_to_merge: 6
+[2025-05-27 09:50:21]   - additional_params: 
+[2025-05-27 09:50:21] 데이터베이스 정리 중...
+[2025-05-27 09:50:54] Read 성능 측정 시작: scenario3_merge6_slow
+[2025-05-27 09:50:56] 실험 완료: scenario3_merge6_slow (소요시간: 34초)
+[2025-05-27 09:50:56] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:51:01] 실험 시작: scenario3_merge8_delayed
+[2025-05-27 09:51:01]   - write_buffer_size: 64MB
+[2025-05-27 09:51:01]   - max_write_buffer_number: 8
+[2025-05-27 09:51:01]   - min_write_buffer_number_to_merge: 8
+[2025-05-27 09:51:01]   - additional_params: 
+[2025-05-27 09:51:01] 데이터베이스 정리 중...
+[2025-05-27 09:51:32] Read 성능 측정 시작: scenario3_merge8_delayed
+[2025-05-27 09:51:37] 실험 완료: scenario3_merge8_delayed (소요시간: 35초)
+[2025-05-27 09:51:37] 시스템 안정화를 위해 5초 대기 중...
+[2025-05-27 09:51:42] 모든 실험 완료!
+[2025-05-27 09:51:42] 결과 파일 위치: /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results
+[2025-05-27 09:51:42] 실험 요약 파일 생성: /home/paperspace/rocks_db_write_buffer_experiment/write_buffer_experiment/results/experiment_summary.txt
+[2025-05-27 09:51:42] 총 15개 실험 완료 - 극명한 성능 차이 분석 가능
+[2025-05-27 09:51:42] 실험 자동화 스크립트 실행 완료

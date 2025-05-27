@@ -1,0 +1,12 @@
+=== System Info for scenario1_512mb_extreme_large ===
+Timestamp: Tue May 27 09:45:02 UTC 2025
+CPU Info:
+model name	: Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz
+Memory Info:
+               total        used        free      shared  buff/cache   available
+Mem:           7.7Gi       736Mi       6.4Gi       1.0Mi       677Mi       6.8Gi
+Swap:             0B          0B          0B
+Disk Info:
+Filesystem                   Size  Used Avail Use% Mounted on
+/dev/mapper/ubuntu--vg-root   48G  7.3G   39G  17% /
+
