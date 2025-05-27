@@ -46,15 +46,15 @@
 
 
 
-### 3.2 실험 시나리오 (단일 옵션 변경)
+### 3.2 실험 시나리오
 
-#### 시나리오 1: Write Buffer Size 단독 테스트
-**목표**: `write_buffer_size`만 변경하여 성능 영향 분석
+#### 시나리오 1: Write Buffer Size 극한 테스트 (5개 실험)
+**목표**: `write_buffer_size`의 극한 차이로 성능 영향 분석
 
 **변수 설정**:
 
 ```bash
-write_buffer_sizes=(67108864 134217728 268435456)  # 64MB, 128MB, 256MB
+write_buffer_sizes=(8388608 33554432 67108864 268435456 536870912)  # 8MB, 32MB, 64MB, 256MB, 512MB
 # 다른 모든 옵션은 기본값 유지
 max_write_buffer_number=3  # 기본값 고정
 min_write_buffer_number_to_merge=1  # 기본값 고정
@@ -62,44 +62,53 @@ min_write_buffer_number_to_merge=1  # 기본값 고정
 
 **테스트**:
 
-- `fillrandom`: 1M 키-값 쌍
+- `fillrandom`: 2M 키-값 쌍 (2KB 값 크기)
 
-#### 시나리오 2: Max Write Buffer Number 단독 테스트
-**목표**: `max_write_buffer_number`만 변경하여 성능 영향 분석
+#### 시나리오 2: Max Write Buffer Number 극한 테스트 (5개 실험)
+**목표**: `max_write_buffer_number`의 극한 차이로 병렬성 영향 분석
 
 **변수 설정**:
 
 ```bash
 write_buffer_size=67108864  # 64MB 고정 (기본값)
-max_write_buffer_numbers=(2 4 6)  # 변경 대상
+max_write_buffer_numbers=(1 2 4 8 16)  # 1개, 2개, 4개, 8개, 16개
 min_write_buffer_number_to_merge=1  # 기본값 고정
 ```
 
 **테스트**:
 
-- `fillrandom`: 동일 조건
+- `fillrandom`: 2M 키-값 쌍 (2KB 값 크기)
 
-#### 시나리오 3: Min Write Buffer Number To Merge 단독 테스트
-**목표**: `min_write_buffer_number_to_merge`만 변경하여 성능 영향 분석
+#### 시나리오 3: Min Write Buffer Number To Merge 극한 테스트 (5개 실험)
+**목표**: `min_write_buffer_number_to_merge`의 극한 차이로 병합 전략 영향 분석
 
 **변수 설정**:
 
 ```bash
 write_buffer_size=67108864  # 64MB 고정 (기본값)
-max_write_buffer_number=3  # 기본값 고정
-min_write_buffer_number_to_merges=(1 2 3)  # 변경 대상
+max_write_buffer_number=8  # 8개로 증가 (병합 테스트를 위해)
+min_write_buffer_number_to_merges=(1 2 4 6 8)  # 1, 2, 4, 6, 8
 ```
 
 **테스트**:
-- `fillrandom`: 동일 조건
+- `fillrandom`: 2M 키-값 쌍 (2KB 값 크기)
 
 ### 3.3 측정 지표
 
 #### 3.3.1 주요 성능 지표
-- **처리량**: Operations per second (ops/sec)
-- **지연시간**: P99 latency (μs)
+- **Write 처리량**: fillrandom Operations per second (ops/sec)
+- **Read 처리량**: readrandom Operations per second (ops/sec)
+- **Write 지연시간**: P50, P95, P99 latency (μs)
+- **Read 지연시간**: P50, P95, P99 latency (μs)
 - **메모리 사용량**: Peak memory usage (MB)
 
 #### 3.3.2 보조 지표
 - **Write Amplification**: 쓰기 증폭 비율
-- **Compaction 빈도**: 백그라운드 작업 횟수
+- **Read Amplification**: 읽기 증폭 비율
+- **Compaction 통계**: 백그라운드 작업 빈도 및 시간
+- **SST 파일 수**: LSM Tree 구조 복잡도
+
+#### 3.3.3 Write Buffer 설정이 Read 성능에 미치는 영향
+- **작은 Write Buffer**: 빈번한 플러시 → 많은 SST 파일 → Read 성능 저하
+- **큰 Write Buffer**: 적은 플러시 → 적은 SST 파일 → Read 성능 향상
+- **메모리 경합**: Write Buffer 메모리 사용 ↑ → Block Cache 효율 ↓ → Read 성능 저하
