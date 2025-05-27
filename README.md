@@ -24,7 +24,7 @@ make db_bench
 # db_bench 경로 확인
 ls -la db_bench
 ```
-
+\
 ### 2. Python 환경 설정
 ```bash
 # 가상환경 생성 (권장)
