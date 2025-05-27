@@ -172,12 +172,18 @@ class RocksDBResultAnalyzer:
         # 반복 실험 결과 평균 계산
         groupby_cols = ['benchmark_type', 'write_buffer_size_mb', 'max_write_buffer_number', 'min_write_buffer_number_to_merge']
         
-        self.summary_stats = self.df.groupby(groupby_cols).agg({
-            'throughput': ['mean', 'std'],
-            'avg_latency_us': ['mean', 'std'],
-            'p99_latency_us': ['mean', 'std'],
-            'write_amplification': ['mean', 'std']
-        }).round(2)
+        # 실제 존재하는 컬럼만 사용
+        available_metrics = {}
+        if 'throughput' in self.df.columns:
+            available_metrics['throughput'] = ['mean', 'std']
+        if 'avg_latency_us' in self.df.columns:
+            available_metrics['avg_latency_us'] = ['mean', 'std']
+        
+        if available_metrics:
+            self.summary_stats = self.df.groupby(groupby_cols).agg(available_metrics).round(2)
+        else:
+            print("⚠️  분석할 수 있는 메트릭이 없습니다.")
+            return
         
         # 컬럼명 정리
         self.summary_stats.columns = ['_'.join(col).strip() for col in self.summary_stats.columns.values]
@@ -229,55 +235,70 @@ class RocksDBResultAnalyzer:
             print("⚠️  fillrandom 기본 설정 데이터가 없습니다.")
             return
         
-        # 그룹별 평균 계산
-        grouped = basic_config.groupby('write_buffer_size_mb').agg({
-            'throughput': 'mean',
-            'p99_latency_us': 'mean',
-            'write_amplification': 'mean'
-        }).reset_index()
+        # 그룹별 평균 계산 (존재하는 컬럼만)
+        agg_dict = {}
+        if 'throughput' in basic_config.columns:
+            agg_dict['throughput'] = 'mean'
+        if 'avg_latency_us' in basic_config.columns:
+            agg_dict['avg_latency_us'] = 'mean'
         
-        # 1. Throughput
-        ax1.plot(grouped['write_buffer_size_mb'], grouped['throughput'], 
-                marker='o', linewidth=2, markersize=8, color='#2E86AB')
-        ax1.set_title('Throughput vs Write Buffer Size', fontweight='bold')
-        ax1.set_xlabel('Write Buffer Size (MB)')
-        ax1.set_ylabel('Throughput (ops/sec)')
-        ax1.grid(True, alpha=0.3)
+        if not agg_dict:
+            print("⚠️  시각화할 데이터가 없습니다.")
+            return
+            
+        grouped = basic_config.groupby('write_buffer_size_mb').agg(agg_dict).reset_index()
         
-        # 최적점 표시
-        max_throughput_idx = grouped['throughput'].idxmax()
-        optimal_size = grouped.loc[max_throughput_idx, 'write_buffer_size_mb']
-        optimal_throughput = grouped.loc[max_throughput_idx, 'throughput']
-        ax1.annotate(f'최적점: {optimal_size}MB\n{optimal_throughput:,.0f} ops/sec', 
-                    xy=(optimal_size, optimal_throughput),
-                    xytext=(optimal_size + 50, optimal_throughput + 5000),
-                    arrowprops=dict(arrowstyle='->', color='red'),
-                    fontsize=10, color='red', fontweight='bold')
+        # 1. Throughput (존재하는 경우만)
+        if 'throughput' in grouped.columns:
+            ax1.plot(grouped['write_buffer_size_mb'], grouped['throughput'], 
+                    marker='o', linewidth=2, markersize=8, color='#2E86AB')
+            ax1.set_title('Throughput vs Write Buffer Size', fontweight='bold')
+            ax1.set_xlabel('Write Buffer Size (MB)')
+            ax1.set_ylabel('Throughput (ops/sec)')
+            ax1.grid(True, alpha=0.3)
+            
+            # 최적점 표시
+            max_throughput_idx = grouped['throughput'].idxmax()
+            optimal_size = grouped.loc[max_throughput_idx, 'write_buffer_size_mb']
+            optimal_throughput = grouped.loc[max_throughput_idx, 'throughput']
+            ax1.annotate(f'최적점: {optimal_size}MB\n{optimal_throughput:,.0f} ops/sec', 
+                        xy=(optimal_size, optimal_throughput),
+                        xytext=(optimal_size + 50, optimal_throughput + 5000),
+                        arrowprops=dict(arrowstyle='->', color='red'),
+                        fontsize=10, color='red', fontweight='bold')
+        else:
+            ax1.text(0.5, 0.5, 'Throughput 데이터 없음', ha='center', va='center', transform=ax1.transAxes)
         
-        # 2. P99 Latency
-        ax2.plot(grouped['write_buffer_size_mb'], grouped['p99_latency_us'], 
-                marker='s', linewidth=2, markersize=8, color='#A23B72')
-        ax2.set_title('P99 Latency vs Write Buffer Size', fontweight='bold')
-        ax2.set_xlabel('Write Buffer Size (MB)')
-        ax2.set_ylabel('P99 Latency (μs)')
-        ax2.grid(True, alpha=0.3)
+        # 2. Average Latency (P99 대신 avg_latency_us 사용)
+        if 'avg_latency_us' in grouped.columns:
+            ax2.plot(grouped['write_buffer_size_mb'], grouped['avg_latency_us'], 
+                    marker='s', linewidth=2, markersize=8, color='#A23B72')
+            ax2.set_title('Average Latency vs Write Buffer Size', fontweight='bold')
+            ax2.set_xlabel('Write Buffer Size (MB)')
+            ax2.set_ylabel('Average Latency (μs)')
+            ax2.grid(True, alpha=0.3)
+        else:
+            ax2.text(0.5, 0.5, 'Latency 데이터 없음', ha='center', va='center', transform=ax2.transAxes)
         
-        # 3. Write Amplification
-        ax3.plot(grouped['write_buffer_size_mb'], grouped['write_amplification'], 
-                marker='^', linewidth=2, markersize=8, color='#F18F01')
-        ax3.set_title('Write Amplification vs Write Buffer Size', fontweight='bold')
+        # 3. Buffer Size Distribution
+        ax3.bar(grouped['write_buffer_size_mb'], grouped['write_buffer_size_mb'], 
+                color='#F18F01', alpha=0.7)
+        ax3.set_title('Write Buffer Size Distribution', fontweight='bold')
         ax3.set_xlabel('Write Buffer Size (MB)')
-        ax3.set_ylabel('Write Amplification')
+        ax3.set_ylabel('Buffer Size (MB)')
         ax3.grid(True, alpha=0.3)
         
         # 4. 메모리 효율성 (Throughput per MB)
-        grouped['efficiency'] = grouped['throughput'] / grouped['write_buffer_size_mb']
-        ax4.bar(grouped['write_buffer_size_mb'], grouped['efficiency'], 
-               color='#C73E1D', alpha=0.7)
-        ax4.set_title('Memory Efficiency (Throughput per MB)', fontweight='bold')
-        ax4.set_xlabel('Write Buffer Size (MB)')
-        ax4.set_ylabel('Throughput per MB')
-        ax4.grid(True, alpha=0.3)
+        if 'throughput' in grouped.columns:
+            grouped['efficiency'] = grouped['throughput'] / grouped['write_buffer_size_mb']
+            ax4.bar(grouped['write_buffer_size_mb'], grouped['efficiency'], 
+                   color='#C73E1D', alpha=0.7)
+            ax4.set_title('Memory Efficiency (Throughput per MB)', fontweight='bold')
+            ax4.set_xlabel('Write Buffer Size (MB)')
+            ax4.set_ylabel('Throughput per MB')
+            ax4.grid(True, alpha=0.3)
+        else:
+            ax4.text(0.5, 0.5, 'Efficiency 계산 불가', ha='center', va='center', transform=ax4.transAxes)
         
         plt.tight_layout()
         plt.savefig(self.output_dir / 'write_buffer_size_impact.png', dpi=300, bbox_inches='tight')
@@ -297,11 +318,14 @@ class RocksDBResultAnalyzer:
         if basic_data.empty:
             return
         
-        # 1. Box plot - 지연시간 분포
-        sns.boxplot(data=basic_data, x='write_buffer_size_mb', y='p99_latency_us', ax=ax1)
-        ax1.set_title('P99 Latency Distribution by Buffer Size', fontweight='bold')
-        ax1.set_xlabel('Write Buffer Size (MB)')
-        ax1.set_ylabel('P99 Latency (μs)')
+        # 1. Box plot - 지연시간 분포 (avg_latency_us 사용)
+        if 'avg_latency_us' in basic_data.columns:
+            sns.boxplot(data=basic_data, x='write_buffer_size_mb', y='avg_latency_us', ax=ax1)
+            ax1.set_title('Average Latency Distribution by Buffer Size', fontweight='bold')
+            ax1.set_xlabel('Write Buffer Size (MB)')
+            ax1.set_ylabel('Average Latency (μs)')
+        else:
+            ax1.text(0.5, 0.5, 'Latency 데이터 없음', ha='center', va='center', transform=ax1.transAxes)
         
         # 2. 벤치마크 타입별 비교
         comparison_data = self.df[
@@ -309,12 +333,15 @@ class RocksDBResultAnalyzer:
             (self.df['min_write_buffer_number_to_merge'] == 1)
         ]
         
-        sns.lineplot(data=comparison_data, x='write_buffer_size_mb', y='p99_latency_us', 
-                    hue='benchmark_type', marker='o', ax=ax2)
-        ax2.set_title('P99 Latency by Benchmark Type', fontweight='bold')
-        ax2.set_xlabel('Write Buffer Size (MB)')
-        ax2.set_ylabel('P99 Latency (μs)')
-        ax2.legend(title='Benchmark Type')
+        if 'avg_latency_us' in comparison_data.columns:
+            sns.lineplot(data=comparison_data, x='write_buffer_size_mb', y='avg_latency_us', 
+                        hue='benchmark_type', marker='o', ax=ax2)
+            ax2.set_title('Average Latency by Benchmark Type', fontweight='bold')
+            ax2.set_xlabel('Write Buffer Size (MB)')
+            ax2.set_ylabel('Average Latency (μs)')
+            ax2.legend(title='Benchmark Type')
+        else:
+            ax2.text(0.5, 0.5, 'Latency 비교 데이터 없음', ha='center', va='center', transform=ax2.transAxes)
         
         plt.tight_layout()
         plt.savefig(self.output_dir / 'latency_analysis.png', dpi=300, bbox_inches='tight')
@@ -334,6 +361,14 @@ class RocksDBResultAnalyzer:
         if basic_data.empty:
             return
         
+        # throughput이 있는 경우만 메모리 효율성 계산
+        if 'throughput' not in basic_data.columns:
+            ax.text(0.5, 0.5, 'Throughput 데이터 없음', ha='center', va='center', transform=ax.transAxes)
+            plt.tight_layout()
+            plt.savefig(self.output_dir / 'memory_efficiency.png', dpi=300, bbox_inches='tight')
+            plt.show()
+            return
+            
         # 메모리 사용량 추정 (write_buffer_size * max_write_buffer_number)
         basic_data['total_memory_mb'] = basic_data['write_buffer_size_mb'] * basic_data['max_write_buffer_number']
         basic_data['memory_efficiency'] = basic_data['throughput'] / basic_data['total_memory_mb']
@@ -386,11 +421,18 @@ class RocksDBResultAnalyzer:
             print("⚠️  128MB 데이터가 없습니다.")
             return
         
-        # 조합별 평균 계산
-        optimal_grouped = optimal_data.groupby(['max_write_buffer_number', 'min_write_buffer_number_to_merge']).agg({
-            'throughput': 'mean',
-            'p99_latency_us': 'mean'
-        }).reset_index()
+        # 조합별 평균 계산 (존재하는 컬럼만)
+        agg_dict = {}
+        if 'throughput' in optimal_data.columns:
+            agg_dict['throughput'] = 'mean'
+        if 'avg_latency_us' in optimal_data.columns:
+            agg_dict['avg_latency_us'] = 'mean'
+            
+        if not agg_dict:
+            print("⚠️  최적 조합 분석할 데이터가 없습니다.")
+            return
+            
+        optimal_grouped = optimal_data.groupby(['max_write_buffer_number', 'min_write_buffer_number_to_merge']).agg(agg_dict).reset_index()
         
         # 조합 라벨 생성
         optimal_grouped['combination'] = optimal_grouped.apply(
