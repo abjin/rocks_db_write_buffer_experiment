@@ -1,4 +1,4 @@
-# RocksDB Write Buffer 최적화: 성능과 메모리 사용량의 트레이드오프 분석
+# RocksDB Write Buffer 벤치마크 연구: 성능 측정과 최적화 가이드라인
 
 ## 1. 실험 동기
 
